@@ -6,9 +6,11 @@ This script parses the LEAP Hand URDF and creates transformation matrices betwee
 
 import xml.etree.ElementTree as ET
 import numpy as np
+import pickle
 from scipy.spatial.transform import Rotation as R
 from typing import Dict, List, Tuple, Optional
 import os
+from pathlib import Path
 
 
 class URDFFrameParser:
@@ -285,7 +287,8 @@ def demonstrate_transformations():
     """Demonstrate the URDF frame parser with the LEAP Hand."""
     
     # Path to URDF file
-    urdf_path = "/Users/jke/repo/LEAP_Hand_Sim/assets/leap_hand/robot.urdf"
+
+    urdf_path = Path.cwd() / "assets" / "leap_hand" / "robot.urdf"
     
     if not os.path.exists(urdf_path):
         print(f"URDF file not found: {urdf_path}")
@@ -340,3 +343,20 @@ def demonstrate_transformations():
 
 if __name__ == "__main__":
     parser = demonstrate_transformations()
+    with open("frame_archive.pkl", "wb") as file:
+        pickle.dump(
+                {
+                    "links": parser.links,
+                    "joints": parser.joints,
+                    "frame_tree": parser.frame_tree,
+                    "transformations": parser.transformations,
+                    "readme": 
+                        """
+                        links: link_name -> link fields;
+                        joints: joint_name -> joint fields;
+                        frame_tree: child frame -> parent frame (it's literally a tree data structure);
+                        transformations: (parent, child) -> 4x4
+                        """
+                },
+                file
+    )
